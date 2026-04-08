@@ -1,57 +1,77 @@
 class Stack<T> {
-    private items: T[] = [];
+  private items: T[] = [];
 
-    push(element: T): void {
-        this.items.push(element);
-    }
+  push(item: T): void {
+    this.items.push(item);
+  }
 
-    pop(): T | undefined {
-        return this.items.pop();
-    }
+  pop(): T | undefined {
+    return this.items.pop();
+  }
 
-    peek(): T | undefined {
-        return this.items[0];
-    }
+  peek(): T | undefined {
+    return this.items[this.items.length - 1];
+  }
 
-    print(): void {
-        console.log(this.items);
-    }
+  isEmpty(): boolean {
+    return this.items.length === 0;
+  }
+
+  size(): number {
+    return this.items.length;
+  }
 }
 
-class HanoiTower {
-     
-    from?: string = 'First';
-    to?: string = 'Second';
-    aux?: string = 'Third';
-    disks: Array<number | string> = [];
-    
-    constructor(from?: string, to?: string, aux?: string) {
-        this.from = from;
-        this.to = to;
-        this.aux = aux;
-    }
+class HanoiTower<T = number> {
+  private source: Stack<T>;
+  private target: Stack<T>;
+  private aux: Stack<T>;
 
-    addDisks(newDisks: Array<number | string>): void {
-        this.disks = newDisks;
-    }
+  private sourceName: string;
+  private targetName: string;
+  private auxName: string;
 
-    solve(): void {
-        const moveDisk = (n: Array<number | string>, from: string, to: string, aux: string) => {
-            const stack = new Stack<number | string>();
-            for (let i = n.length; i > 0; i--) { stack.push(n[i - 1]); }
-            if (stack.peek() === 'string') {
+  constructor(
+    sourceName: string = 'First',
+    targetName: string = 'Second',
+    auxName: string = 'Third'
+  ) {
+    this.source = new Stack<T>();
+    this.target = new Stack<T>();
+    this.aux = new Stack<T>();
+    this.sourceName = sourceName;
+    this.targetName = targetName;
+    this.auxName = auxName;
+  }
 
-            } 
-            if (stack.peek() === 'number') {
-                let n: number = this.disks.length
-                if (n === 1) {
-                    console.log(`Move disk 1 from ${from} to ${to}`);
-                    return;
-                }
-                moveDisk(n - 1, from, aux, to);
-                console.log(`Переместить диск ${n} с ${from} на ${to}`);
-                moveDisk(n - 1, aux, to, from);
-            }
-        };
+  addDisks(disks: T[]): void {
+    for (const disk of disks) {
+      this.source.push(disk);
     }
+  }
+
+  solve(): void {
+    this.moveDisks(this.source.size(), this.source, this.target, this.aux);
+  }
+
+  private moveDisks(n: number, src: Stack<T>, dest: Stack<T>, aux: Stack<T>): void {
+    if (n === 0) {
+      return;
+    }
+    this.moveDisks(n - 1, src, aux, dest);
+    const disk = src.pop()!;
+    dest.push(disk);
+    this.printMove(disk, this.getName(src), this.getName(dest));
+    this.moveDisks(n - 1, aux, dest, src);
+  }
+
+  private getName(stack: Stack<T>): string {
+    if (stack === this.source) return this.sourceName;
+    if (stack === this.target) return this.targetName;
+    return this.auxName;
+  }
+
+  private printMove(disk: T, from: string, to: string): void {
+    console.log(`Переместить диск ${disk} с ${from} на ${to}`);
+  }
 }
